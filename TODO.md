@@ -29,11 +29,15 @@
 ## 4. Construcción de modelos
 - **Modelos univariados**  
   - [ ] ARIMA / SARIMA (criterio Box‑Jenkins)
-    - probar AUTOARIMA (solo mira el AKAIKE)
+    - Probar AUTOARIMA (solo mira el AKAIKE)
   - [ ] GARCH (modelar volatilidad)  
 - **Modelos multivariados** (para utilizar varias features al mismo tiempo)  
   - [ ] VAR / VARMAX
   - [ ] XGBoost con *lags* y features exógenas
+  - [ ] Transformers
+    - Informers
+    - Revisar si cantidad de datos es suficiente para un Transformer
+    - Quizás solo hace sentido para predecir con datos a minuto/segundo, no diario.
 - **Modelos deep‑learning**  
   - [ ] LSTM / GRU con *sliding window*  
 - **Procesos estocásticos**  
