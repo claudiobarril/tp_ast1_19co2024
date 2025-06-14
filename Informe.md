@@ -35,3 +35,42 @@ Es importante reconocer que el comportamiento del precio de BTC está influido p
   Algunas fuentes de información, como Google Trends o indicadores sociales, pueden introducir ruido y no reflejar causalidad directa.
 
 Por lo tanto, este trabajo no pretende ofrecer un modelo de predicción perfecto, sino más bien una evaluación crítica y comparativa de diferentes enfoques, entendiendo tanto sus aportes como sus límites dentro del contexto real del mercado cripto.
+
+## 3. Variables utilizadas en el análisis
+
+Además del precio histórico de BTC, se incorporan diversas variables financieras y de sentimiento de mercado con el objetivo de enriquecer los modelos y capturar patrones más complejos. A continuación, se describen brevemente las principales variables utilizadas:
+
+### Activos financieros
+
+- **S&P 500**  
+  Principal índice bursátil estadounidense que agrupa a las 500 empresas más representativas. Se incluye como proxy del comportamiento del mercado financiero tradicional.
+
+- **Ethereum (ETH)**  
+  Segunda criptomoneda más importante en capitalización. Se utiliza para capturar movimientos sincronizados o divergencias dentro del ecosistema cripto.
+
+- **Oro (Gold)**  
+  Activo refugio clásico. Se incorpora para evaluar si BTC presenta correlaciones con activos percibidos como seguros en contextos de incertidumbre.
+
+- **Índice del dólar (DXY)**  
+  Mide el valor del dólar estadounidense frente a una canasta de monedas extranjeras. Se incluye para captar efectos macroeconómicos globales, ya que BTC suele moverse inversamente al dólar.
+
+- **Tasa de interés de EE.UU. (Federal Funds Rate)**  
+  Determinada por la Reserva Federal (FED), influye directamente en el costo del dinero. Se considera relevante por su impacto en activos de riesgo y flujos de capital.
+
+### Indicadores de actividad o sentimiento
+
+- **Tendencias de búsqueda de “Bitcoin” en Google**  
+  Variable de tipo “sentiment”. Se utiliza como aproximación al interés público o especulativo sobre BTC.
+
+- **Fear and Greed Index (Índice de miedo y avaricia)**  
+  Índice compuesto que intenta cuantificar el sentimiento del mercado cripto. Valores bajos indican miedo (posible piso); valores altos, avaricia (posible techo).
+
+- **Direcciones activas de BTC**  
+  Métrica on-chain que indica cuántas wallets participaron en transacciones en un período dado. Refleja la actividad en la red y puede asociarse a fases de acumulación o distribución.
+
+- **Índice RSI (Relative Strength Index)**  
+  Indicador técnico que mide la velocidad y cambio de los movimientos de precios. Se utiliza para detectar condiciones de sobrecompra o sobreventa.
+
+---
+
+Estas variables no se utilizarán todas en todos los modelos, pero servirán para explorar su poder predictivo tanto individual como combinado, en modelos multivariados y de machine learning.
