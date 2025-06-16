@@ -45,6 +45,8 @@ Dicho esto, se planteará la separación de modelos univariados y multivariados.
 
 Finalmente, este trabajo no pretende ofrecer un modelo de predicción perfecto, sino más bien una evaluación crítica y comparativa de diferentes enfoques, entendiendo tanto sus aportes como sus límites dentro del contexto real del mercado cripto.
 
+---
+
 ## 3. Variables utilizadas en el análisis
 
 Además del precio histórico de BTC, se incorporan diversas variables financieras y de sentimiento de mercado con el objetivo de enriquecer los modelos y capturar patrones más complejos. A continuación, se describen brevemente las principales variables utilizadas:
@@ -101,12 +103,16 @@ Además del precio histórico de BTC, se incorporan diversas variables financier
 > El **RSI** se calcula sobre la serie de cierre de BTC utilizando una ventana móvil de **14 días**, conforme a la definición tradicional de este indicador técnico.
 > Su valor oscila entre 0 y 100, donde valores mayores a 70 indican potencial sobrecompra, y menores a 30, potencial sobreventa.
 
----
-
 Como mencionamos anteriormente, estas variables no se utilizarán todas en todos los modelos, pero servirán para explorar su poder predictivo tanto individual como combinado, en modelos multivariados y de machine learning.
+
+---
 
 ## 4. Modelos
 
+---
+
 ## 5. Resultados
+
+---
 
 ## 6. Conclusiones
