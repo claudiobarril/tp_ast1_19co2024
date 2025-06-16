@@ -240,7 +240,6 @@ Prophet(n_changepoints=100, changepoint_range=1.0)
 
 - Prophet es muy útil para series con tendencias suaves y estacionalidad clara.
 - No es ideal para series con alta volatilidad y sin estructura periódica clara como los retornos de BTC.
-- Funciona mejor sobre el precio que sobre los retornos.
 - Su capacidad de detección de cambios puede aprovecharse con configuraciones ajustadas.
 
 ### Movimiento browniano geométrico
@@ -248,6 +247,57 @@ Prophet(n_changepoints=100, changepoint_range=1.0)
 ### LSTM
 
 ### XGBoost
+
+es un modelo de aprendizaje automático basado en árboles de decisión optimizados mediante boosting. Es ampliamente utilizado por su:
+
+- Alta precisión
+- Capacidad de manejar relaciones no lineales
+- Robustez ante outliers y ruido
+- Soporte para múltiples features
+
+#### _Implementación con features_
+
+Se utilizó XGBoost para predecir el **retorno logarítmico diario del BTC (`btc_log_return`)**. Para ello, se construyó un conjunto de features que incluye:
+
+- **Lags** del retorno: `lag_1`, `lag_2`, `lag_3`
+- **Regresores externos**:
+  - `eth_log_return` (Ethereum)
+  - `sp500_log_return` (S&P 500)
+  - `gold_log_return` (Oro)
+  - `dxy_log_return` (Índice del dólar)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | 7.137 |
+| **RMSE**| 9.486 |
+
+#### _Implementación con features optimizado_
+
+Gracias a Optuna buscamos los parámetros que minimiza RMSE 
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | 6.558 |
+| **RMSE**| 8.506 |
+
+
+#### _Implementación sin features optimizado_
+
+Gracias a Optuna buscamos los parámetros que minimiza RMSE y no utilizamos features distintos al target (y sus lags)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 9.943  |
+| **RMSE**| 13.524 |
+
+#### _Conclusiones_
+
+El análisis de importancia de features mostró que los lags del propio retorno de BTC y el eth_log_return fueron los más influyentes, seguidos por sp500_log_return.
+
+XGBoost
+- Es capaz de modelar relaciones complejas y no lineales.
+- Requiere más ingeniería de features, pero permite mayor control y personalización.
+- Es ideal cuando se cuenta con regresores múltiples y objetivos ruidosos como los retornos de BTC.
 
 ---
 
