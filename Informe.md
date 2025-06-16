@@ -147,7 +147,7 @@ Es un modelo estadístico clásico para series de tiempo univariadas. Se compone
 
 En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diario del precio de Bitcoin (BTC)**.
 
-**Estacionariedad**
+##### _Estacionariedad_
 
  Se verificó su mediante el test ADF:
 
@@ -161,13 +161,13 @@ En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diari
 
 > Podemos ver que el p-valor es cero, menor a 0.05 y por lo tanto es estacionaria. También podemos utilizar el estadístico ADF y decir que al ser mucho menor al nivel más crítico de los valores críticos la serie es estacionaria. Usaremos d=0
 
-**Búsqueda de parámetros**
+##### _Búsqueda de parámetros_
 
 Se utilizó `auto_arima` para seleccionar automáticamente los parámetros óptimos `(p, q)` minimizando el AIC.
 
 > Modelo elegido: **ARIMA(1, 0, 0)**
 
-**Resultados**
+##### _Resultados_
 
 El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 
@@ -179,7 +179,7 @@ El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 - El modelo logra seguir la dirección general de los retornos.
 - Tiende a **suavizar la predicción** y subestima movimientos bruscos.
 
-**Conclusión**
+##### _Conclusión_
 
 - ARIMA es simple, eficiente y adecuado como baseline.
 - No captura bien shocks abruptos ni relaciones no lineales.
@@ -190,6 +190,58 @@ El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 ### VAR
 
 ### Prophet
+
+es una herramienta desarrollada por Facebook (Meta) para modelar y predecir series temporales de forma automática. Está diseñada para capturar:
+
+- **Tendencias** (lineales o logísticas)
+- **Estacionalidades** (diarias, semanales, anuales)
+- **Cambios estructurales** mediante puntos de cambio (“changepoints”)
+
+Su enfoque aditivo permite descomponer la serie como:
+
+y(t) = g(t) + s(t) + h(t) + epsilon_t
+
+Donde:
+
+- g(t): tendencia
+- s(t): estacionalidad
+- h(t): efectos externos (como feriados)
+- epsilon_t: error
+
+#### _Implementación `btc_log_return`_
+
+- Prophet tiende a suavizar en exceso la serie de retornos.
+- No captura bien la alta volatilidad diaria del BTC.
+- Genera una curva de predicción oscilante que no sigue los picos abruptos del retorno real.
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 0.0177 |
+| **RMSE**| 0.0251 |
+
+> Aunque los valores son similares a ARIMA, el comportamiento visual muestra **underfitting**: el modelo no logra adaptarse a los movimientos rápidos.
+
+#### _Implementación `btc_close`_
+
+Inicialmente, Prophet mostró un mal ajuste sobre el precio debido a su suposición de tendencias suaves.
+
+Se mejoró la performance aumentando el número de puntos de cambio:
+
+Prophet(n_changepoints=100, changepoint_range=1.0)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 16.792 |
+| **RMSE**| 22.049 |
+
+> Aún con mejor rendimiento que al inicio, el modelo tiende a subestimar crecimientos exponenciales y no modela bien eventos no recurrentes.
+
+##### _Conclusión_
+
+- Prophet es muy útil para series con tendencias suaves y estacionalidad clara.
+- No es ideal para series con alta volatilidad y sin estructura periódica clara como los retornos de BTC.
+- Funciona mejor sobre el precio que sobre los retornos.
+- Su capacidad de detección de cambios puede aprovecharse con configuraciones ajustadas.
 
 ### Movimiento browniano geométrico
 
