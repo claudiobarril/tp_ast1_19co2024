@@ -14,9 +14,7 @@
 - **Christian Pisani Testa** (a1715)  
   ✉️ [christian.tpg@gmail.com](mailto:christian.tpg@gmail.com)
 
-## Contenido
-
-### Fuente de datos
+## Contenido del Trabajo final
 
 ---
 
@@ -26,13 +24,11 @@
 el estudiante.
   3. Generación de pronósticos por cada modelo, evaluación y comparación.
 
-Aquí tienes el texto listo para Markdown, con acentos corregidos y el cambio de letras por números:
-
 ---
 
 ## Informe de análisis
 
-Explicación de los procesos realizados y las conclusiones obtenidas de los análisis. El informe debe incluir:
+Explicación de los procesos realizados y las conclusiones obtenidas de los análisis.
 
 1. **Planteamiento de pregunta de investigación:**
    Plantee una pregunta que se pueda responder con su trabajo con los datos.
