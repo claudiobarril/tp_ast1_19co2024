@@ -295,10 +295,9 @@ Para mejorar el rendimiento del modelo GBM, se implementó optimización automá
 
 ##### _Conclusión_
 
-- GBM modela directamente la evolución estocástica de precios con fundamento teórico sólido en finanzas.
-- Mantiene la estructura probabilística del proceso subyacente (deriva + ruido browniano).
-- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros.
-- El modelo optimizado muestra mejor capacidad para adaptarse a diferentes condiciones de mercado.
+- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros. 
+- Tiene un sesgo alcista menor al modelo base (0.20% vs 0.18% diario). 
+- El nivel de riesgo permanece igual (σ de 3.8%)
 - Aún así, genera predicciones relativamente suaves para un activo tan volátil como Bitcoin.
 - Útil como baseline teórico mejorado, especialmente cuando se combina con optimización automática de hiperparámetros.
 
@@ -334,7 +333,6 @@ Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
 
 - Regresión lineal permite incorporar información exógena de forma directa e interpretable.
 - El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
-- **S&P 500** aporta correlación significativa (coef: 0.79) con el mercado tradicional.
 - **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
 - Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
 - Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
