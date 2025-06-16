@@ -137,6 +137,20 @@ Como mencionamos anteriormente, estas variables no se utilizarán todas en todos
 
 ## 4. Modelos
 
+### ARIMA
+
+### GARCH
+
+### VAR
+
+### Prophet
+
+### Movimiento browniano geométrico
+
+### LSTM
+
+### XGBoost
+
 ---
 
 ## 5. Resultados
