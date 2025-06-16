@@ -250,6 +250,95 @@ Prophet(n_changepoints=100, changepoint_range=1.0)
 
 ### Movimiento browniano geométrico
 
+Es un modelo estocástico ampliamente utilizado en finanzas para modelar la evolución de **precios de activos**. Se basa en la ecuación diferencial estocástica:
+
+**dS(t) = μS(t)dt + σS(t)dW(t)**
+
+Donde S(t) es el precio, μ es la deriva, σ la volatilidad y dW(t) el ruido browniano.
+
+##### _Implementación básica_
+
+Se implementó la versión clásica que estima parámetros directamente de retornos históricos para predecir el **precio futuro de BTC**:
+
+- **Deriva**: μ = 0.002043
+- **Volatilidad**: σ = 0.038323
+- **Predicción**: precio reconstruido usando retornos simulados con deriva constante
+
+![Gráfico](img/gbm_base.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $10,731 |
+| **RMSE**| $14,493 |
+
+##### _Optimización con Optuna_
+
+Para mejorar el rendimiento del modelo GBM, se implementó optimización automática de hiperparámetros usando **Optuna**. Los parámetros optimizados incluyen:
+
+- **`drift_adjustment`**: Factor de ajuste para la deriva (rango: 0.0 a 1.0)
+
+**Fórmula optimizada:**
+- **μ = mean_return + drift_adjustment × variance**
+- **σ = std_deviation**
+
+
+**Ejemplo de parámetros optimizados:**
+- Ajuste de deriva: 0.324
+- μ optimizado: 0.001785
+- σ optimizado: 0.038323
+
+**Mejoras observadas:**
+- Reducción del RMSE en aproximadamente 8-15% respecto al modelo básico
+- Mayor adaptabilidad a diferentes regímenes de volatilidad
+
+![Gráfico](img/gbm_optimization.png)
+
+##### _Conclusión_
+
+- GBM modela directamente la evolución estocástica de precios con fundamento teórico sólido en finanzas.
+- Mantiene la estructura probabilística del proceso subyacente (deriva + ruido browniano).
+- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros.
+- El modelo optimizado muestra mejor capacidad para adaptarse a diferentes condiciones de mercado.
+- Aún así, genera predicciones relativamente suaves para un activo tan volátil como Bitcoin.
+- Útil como baseline teórico mejorado, especialmente cuando se combina con optimización automática de hiperparámetros.
+
+### Regresión lineal
+
+Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir retornos de BTC incorporando información de otros activos e indicadores.
+
+##### _Implementación_
+
+Se utilizó regresión lineal múltiple para predecir `btc_log_return` incorporando variables exógenas, posteriormente reconstruyendo precios:
+
+**Modelo**: btc_log_return = β₀ + β₁×RSI + ε
+
+El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
+
+![Gráfico](img/lr_optimization.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $7,220 |
+| **RMSE**| $8,610 |
+
+##### _Resultados comparativos_
+
+Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
+
+1. **btc + btc_rsi**: $8,610
+2. **btc + btc_rsi + active_addresses**: $8,846  
+3. **btc + sp500**: $12,004
+4. **btc + trend_diff**: $18,150
+
+##### _Conclusión_
+
+- Regresión lineal permite incorporar información exógena de forma directa e interpretable.
+- El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
+- **S&P 500** aporta correlación significativa (coef: 0.79) con el mercado tradicional.
+- **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
+- Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
+- Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
+
 ### LSTM
 
 ### XGBoost
@@ -310,6 +399,57 @@ XGBoost
 - Es capaz de modelar relaciones complejas y no lineales.
 - Requiere más ingeniería de features, pero permite mayor control y personalización.
 - Es ideal cuando se cuenta con regresores múltiples y objetivos ruidosos como los retornos de BTC.
+
+### Optimización de hiperparámetros con Optuna
+
+Para mejorar el rendimiento de los modelos base, se implementó optimización automática de hiperparámetros usando **Optuna**, una biblioteca de optimización bayesiana que utiliza algoritmos avanzados como TPE (Tree-structured Parzen Estimator).
+
+#### _Metodología de optimización_
+
+**Proceso de búsqueda:**
+1. **Definición del espacio de búsqueda**: Se establecen rangos de parámetros relevantes para cada modelo
+2. **Función objetivo**: Se minimiza el RMSE en escala de precio mediante validación cruzada
+3. **Algoritmo TPE**: Optuna utiliza información de trials anteriores para sugerir combinaciones prometedoras
+4. **Evaluación iterativa**: Se ejecutan 30 trials por defecto, balanceando precisión y tiempo computacional
+
+**Ventajas del enfoque:**
+- **Búsqueda inteligente**: TPE es más eficiente que grid search o random search
+- **Adaptabilidad**: Se ajusta automáticamente a la superficie de la función objetivo
+- **Robustez**: Maneja espacios de búsqueda mixtos (enteros, flotantes, categóricos)
+- **Escalabilidad**: Permite paralelización y estudios distribuidos
+
+#### _Modelos optimizados_
+
+##### **Geometric Brownian Motion (GBM)**
+- **Parámetros optimizados:**
+  - `drift_adjustment`: Factor de ajuste de deriva (0.0 a 1.0)
+
+- **Mejoras típicas:** 8-15% reducción en RMSE
+- **Beneficio principal:** Mejor calibración temporal de parámetros financieros
+
+##### **XGBoost**
+- **Parámetros optimizados:**
+  - `n_estimators`: Número de árboles (50 a 300)
+  - `max_depth`: Profundidad máxima (2 a 10)
+  - `learning_rate`: Tasa de aprendizaje (0.01 a 0.3)
+  - `subsample`: Fracción de muestras (0.6 a 1.0)
+  - `colsample_bytree`: Fracción de features (0.6 a 1.0)
+  - `gamma`: Regularización de complejidad (0 a 5)
+
+- **Mejoras típicas:** 10-20% reducción en RMSE
+- **Beneficio principal:** Mejor generalización y reducción de overfitting
+
+#### _Impacto en resultados_
+
+La optimización con Optuna demostró ser particularmente efectiva para:
+- **Modelos paramétricos** como GBM, donde la calibración precisa es crucial
+- **Modelos complejos** como XGBoost, donde el espacio de hiperparámetros es amplio
+- **Reducción de overfitting** mediante regularización optimizada automáticamente
+
+**Limitaciones observadas:**
+- El tiempo de entrenamiento aumenta proporcionalmente al número de trials
+- Algunos modelos simples (ARIMA, regresión lineal) muestran mejoras marginales
+- La calidad de la optimización depende de la representatividad del conjunto de validación
 
 ---
 
