@@ -139,6 +139,52 @@ Como mencionamos anteriormente, estas variables no se utilizarán todas en todos
 
 ### ARIMA
 
+Es un modelo estadístico clásico para series de tiempo univariadas. Se compone de tres componentes:
+
+- **AR (AutoRegressive)**: utiliza dependencias lineales con valores pasados.
+- **I (Integrated)**: aplica diferenciación para lograr estacionariedad.
+- **MA (Moving Average)**: ajusta errores residuales de predicciones anteriores.
+
+En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diario del precio de Bitcoin (BTC)**.
+
+**Estacionariedad**
+
+ Se verificó su mediante el test ADF:
+
+  ===== Test de Estacionariedad ADF =====
+  - ADF Statistic: -19.02553917226454
+  - p-value: 0.0
+  - Valores críticos:
+  Nivel 1%: -3.43
+  Nivel 5%: -2.86
+  Nivel 10%: -2.56
+
+> Podemos ver que el p-valor es cero, menor a 0.05 y por lo tanto es estacionaria. También podemos utilizar el estadístico ADF y decir que al ser mucho menor al nivel más crítico de los valores críticos la serie es estacionaria. Usaremos d=0
+
+**Búsqueda de parámetros**
+
+Se utilizó `auto_arima` para seleccionar automáticamente los parámetros óptimos `(p, q)` minimizando el AIC.
+
+> Modelo elegido: **ARIMA(1, 0, 0)**
+
+**Resultados**
+
+El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 13.481 |
+| **RMSE**| 17.624 |
+
+- El modelo logra seguir la dirección general de los retornos.
+- Tiende a **suavizar la predicción** y subestima movimientos bruscos.
+
+**Conclusión**
+
+- ARIMA es simple, eficiente y adecuado como baseline.
+- No captura bien shocks abruptos ni relaciones no lineales.
+- Es útil como referencia inicial en comparación con modelos más complejos.
+
 ### GARCH
 
 ### VAR
