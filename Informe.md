@@ -49,7 +49,7 @@ Finalmente, este trabajo no pretende ofrecer un modelo de predicción perfecto, 
 
 Además del precio histórico de BTC, se incorporan diversas variables financieras y de sentimiento de mercado con el objetivo de enriquecer los modelos y capturar patrones más complejos. A continuación, se describen brevemente las principales variables utilizadas:
 
-### Activos financieros
+#### Activos financieros
 
 - **S&P 500**  
   Principal índice bursátil estadounidense que agrupa a las 500 empresas más representativas. Se incluye como proxy del comportamiento del mercado financiero tradicional.
@@ -66,7 +66,7 @@ Además del precio histórico de BTC, se incorporan diversas variables financier
 - **Tasa de interés de EE.UU. (Federal Funds Rate)**  
   Determinada por la Reserva Federal (FED), influye directamente en el costo del dinero. Se considera relevante por su impacto en activos de riesgo y flujos de capital.
 
-### Indicadores de actividad o sentimiento
+#### Indicadores de actividad o sentimiento
 
 - **Tendencias de búsqueda de “Bitcoin” en Google**  
   Variable de tipo “sentiment”. Se utiliza como aproximación al interés público o especulativo sobre BTC.
@@ -80,7 +80,7 @@ Además del precio histórico de BTC, se incorporan diversas variables financier
 - **Índice RSI (Relative Strength Index)**  
   Indicador técnico que mide la velocidad y cambio de los movimientos de precios. Se utiliza para detectar condiciones de sobrecompra o sobreventa.
 
-### 4. Fuente de los datos
+### Fuente de los datos
 
 | Origen                   | Serie descargada                         | Campo usado                               | Escala / Observaciones                                                                                                                                                                  |
 | ------------------------ | ---------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -105,8 +105,8 @@ Además del precio histórico de BTC, se incorporan diversas variables financier
 
 Como mencionamos anteriormente, estas variables no se utilizarán todas en todos los modelos, pero servirán para explorar su poder predictivo tanto individual como combinado, en modelos multivariados y de machine learning.
 
-### 5. Modelos
+## 4. Modelos
 
-### 6. Resultados
+## 5. Resultados
 
-### 7. Conclusiones
+## 6. Conclusiones
