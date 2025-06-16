@@ -171,6 +171,8 @@ Se utilizó `auto_arima` para seleccionar automáticamente los parámetros ópti
 
 El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 
+![Gráfico](img/arima_pred_vs_real.png)
+
 | Métrica | Valor  |
 |---------|--------|
 | **MAE** | 13.481 |
@@ -214,6 +216,8 @@ Donde:
 - No captura bien la alta volatilidad diaria del BTC.
 - Genera una curva de predicción oscilante que no sigue los picos abruptos del retorno real.
 
+![Gráfico](img/prophet_log_return.png)
+
 | Métrica | Valor  |
 |---------|--------|
 | **MAE** | 0.0177 |
@@ -228,6 +232,8 @@ Inicialmente, Prophet mostró un mal ajuste sobre el precio debido a su suposici
 Se mejoró la performance aumentando el número de puntos de cambio:
 
 Prophet(n_changepoints=100, changepoint_range=1.0)
+
+![Gráfico](img/prophet_close.png)
 
 | Métrica | Valor  |
 |---------|--------|
@@ -266,6 +272,8 @@ Se utilizó XGBoost para predecir el **retorno logarítmico diario del BTC (`btc
   - `gold_log_return` (Oro)
   - `dxy_log_return` (Índice del dólar)
 
+![Gráfico](img/xgboost_no_optimization_features.png)
+
 | Métrica | Valor |
 |---------|-------|
 | **MAE** | 7.137 |
@@ -274,6 +282,8 @@ Se utilizó XGBoost para predecir el **retorno logarítmico diario del BTC (`btc
 #### _Implementación con features optimizado_
 
 Gracias a Optuna buscamos los parámetros que minimiza RMSE 
+
+![Gráfico](img/xgboost_optimization_features.png)
 
 | Métrica | Valor |
 |---------|-------|
@@ -284,6 +294,8 @@ Gracias a Optuna buscamos los parámetros que minimiza RMSE
 #### _Implementación sin features optimizado_
 
 Gracias a Optuna buscamos los parámetros que minimiza RMSE y no utilizamos features distintos al target (y sus lags)
+
+![Gráfico](img/xgboost_optimization.png)
 
 | Métrica | Valor  |
 |---------|--------|
