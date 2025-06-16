@@ -103,6 +103,34 @@ Además del precio histórico de BTC, se incorporan diversas variables financier
 > El **RSI** se calcula sobre la serie de cierre de BTC utilizando una ventana móvil de **14 días**, conforme a la definición tradicional de este indicador técnico.
 > Su valor oscila entre 0 y 100, donde valores mayores a 70 indican potencial sobrecompra, y menores a 30, potencial sobreventa.
 
+
+### 5. Descripción del DataFrame final
+
+El conjunto de datos final cuenta con **3.925 observaciones diarias** y **22 columnas**. Integra información financiera, indicadores técnicos y métricas de sentimiento de mercado, tanto en su forma original como transformada. Las columnas incluyen:
+
+* **Precios de activos financieros**
+  Variables como `btc_close`, `eth_close`, `gold_close`, `sp500_close` y `dxy_close` corresponden a precios de cierre ajustado. Estos valores han sido utilizados como base para calcular retornos logarítmicos y otros indicadores.
+
+* **Indicadores de actividad y sentimiento**
+  Se incluyen métricas como `active_addresses` (direcciones activas en la red BTC), `fear_greed` (índice de miedo y codicia) y `trend` (tendencias de búsqueda de "Bitcoin" en Google Trends).
+
+* **Variables macroeconómicas**
+  `interest_rate` representa la tasa de interés objetivo fijada por la Reserva Federal de EE.UU., descargada de la API de la St. Louis Fed.
+
+* **Indicadores técnicos y transformaciones estadísticas**
+  A partir de las series originales se derivaron variables como:
+
+  * `btc_log_return`, `eth_log_return`, `sp500_log_return`, `gold_log_return`, `dxy_log_return`: retornos logarítmicos diarios.
+  * `btc_log_cumsum`: suma acumulada de los retornos logarítmicos de BTC (permite reconstruir la evolución del precio).
+  * `btc_rsi`: índice RSI de BTC calculado sobre una ventana de 14 días.
+  * `active_addresses_pct_change`: cambio porcentual diario en direcciones activas.
+  * `trend_diff`: variación diaria en las tendencias de búsqueda.
+
+> Algunas columnas presentan menos de 3.925 observaciones debido a faltantes históricos en fuentes como Google Trends, Fear & Greed o ETH, que comenzaron a reportar datos en fechas posteriores.
+> Los valores faltantes fueron tratados cuidadosamente antes del entrenamiento de los modelos.
+
+Este conjunto estructurado y enriquecido permite implementar tanto **modelos univariados** (focalizados en el comportamiento propio de BTC) como **multivariados** (que integran información contextual o correlacionada para mejorar la capacidad predictiva).
+
 Como mencionamos anteriormente, estas variables no se utilizarán todas en todos los modelos, pero servirán para explorar su poder predictivo tanto individual como combinado, en modelos multivariados y de machine learning.
 
 ---
