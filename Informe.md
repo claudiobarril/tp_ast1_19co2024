@@ -189,8 +189,6 @@ El modelo fue entrenado con el 80% de los datos y evaluado en el 20% restante.
 
 ### GARCH
 
-### GARCH
-
 Los modelos **GARCH (Generalized Autoregressive Conditional Heteroskedasticity)** describen la **volatilidad condicional** de una serie financiera: permiten que la varianza cambie a lo largo del tiempo en función de choques pasados. Son la extensión natural de los modelos ARCH de Engle (1982) y capturan el fenómeno "clústeres de volatilidad" típico de los mercados especulativos.
 
 ##### _Motivación_
@@ -203,7 +201,7 @@ Los modelos **GARCH (Generalized Autoregressive Conditional Heteroskedasticity)*
 
 $$
 \begin{aligned}
-r_t          &= \mu + \varepsilon_t, \quad \varepsilon_t = \sigma_t z_t, \quad z_t \sim \mathcal N(0,1)\\[4pt]
+r_t          &= \mu + \varepsilon_t, \quad \varepsilon_t = \sigma_t z_t, \quad z_t \sim \mathcal N(0,1)\\
 \sigma_t^{2} &= \omega + \alpha_1 \varepsilon_{t-1}^{2} + \beta_1 \sigma_{t-1}^{2},
 \end{aligned}
 $$
@@ -651,3 +649,35 @@ La optimización con Optuna demostró ser particularmente efectiva para:
 |                      | 12,364  | active_addresses + dxy_close + eth_close + fear_greed + gold_close + interest_rate + sp500_close + trend |
 | **XGBoost**          | 8,506   | eth_log_return + sp500_log_return + gold_log_return + dxy_log_return |
 |                      | 13,524  | btc_close                                                    |
+
+---
+
+### Conclusiones
+
+A lo largo del trabajo se han explorado diversos modelos de predicción aplicados al precio de Bitcoin, tanto univariados como multivariados, así como modelos enfocados en estimar la volatilidad del activo.
+
+Los **modelos univariados**, basados únicamente en el comportamiento pasado del precio de BTC, han demostrado claras limitaciones. En particular:
+
+* No han sido capaces de anticipar **cambios bruscos** ni **tendencias alcistas o bajistas** sostenidas.
+* En la mayoría de los casos, ni siquiera logran aproximarse a un **valor medio razonable** del precio de BTC tras unos pocos meses.
+* Su utilidad se restringe principalmente a **predicciones de muy corto plazo**, generalmente de pocos días.
+
+Por otro lado, los **modelos multivariados** explorados (incluyendo variables financieras y on-chain) han mostrado un **notable desempeño** en la predicción de tendencias y en el seguimiento de las fases de subida y bajada del mercado. Sin embargo:
+
+* Su capacidad predictiva depende en gran medida del **conocimiento de valores futuros** de otras variables explicativas, como métricas del mundo financiero tradicional o datos on-chain (por ejemplo, direcciones activas o búsquedas en Google).
+* Esta dependencia limita severamente la **aplicabilidad práctica** del modelo para realizar predicciones a futuro, especialmente a **mediano plazo**, cuando dichas variables aún no están disponibles.
+
+En cuanto al modelo utilizado para **predecir la volatilidad** (como el GARCH), si bien permite capturar algunos patrones de heterocedasticidad, también presenta limitaciones estructurales, en especial frente a episodios extremos o cambios de régimen.
+
+---
+
+### Próximos pasos
+
+Como línea futura de investigación, se proponen los siguientes ejes:
+
+* **Desarrollar modelos auxiliares** que permitan estimar o simular el comportamiento futuro de las variables explicativas utilizadas en los modelos multivariados, lo cual permitiría preservar su poder predictivo sin necesidad de conocer datos futuros reales.
+* Explorar **nuevas variables** aún no consideradas, que podrían ofrecer información relevante sin requerir disponibilidad ex post.
+* Profundizar en el análisis y refinamiento de **modelos univariados**, tal vez incorporando arquitecturas más complejas como LSTM o Transformers.
+* Continuar investigando modelos específicos para la **predicción de volatilidad y riesgo**, con énfasis en su capacidad para identificar momentos de alta incertidumbre o estrés de mercado.
+
+---
