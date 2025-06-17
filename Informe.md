@@ -189,11 +189,70 @@ El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 
 ### GARCH
 
-### VAR
+### VAR y VARMAX
+
+Son modelos estadísticos **multivariados** para series de tiempo que permiten capturar la interacción entre varias variables financieras.
+
+* **VAR (Vector Autoregressive)**
+  Cada serie se modela como combinación lineal de sus *propios* rezagos y de los rezagos de las demás series endógenas.
+
+* **VARMAX (Vector Autoregressive Moving Average with eXogenous variables)**
+  Amplía el VAR añadiendo **MA (errores rezagados)** y la posibilidad de incluir **variables exógenas** que influyen, pero no son influidas, por el sistema (por ejemplo, tasas de interés de EEUU).
+
+En este trabajo se usaron VAR y VARMAX para predecir el **retorno logarítmico diario de BTC** aprovechando información macro y de mercado.
+
+##### _Variables disponibles_
+
+| Tipo                    | Variables                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Endógenas**           | `btc_log_return`, `sp500_log_return`, `gold_log_return`, `dxy_log_return`, `eth_log_return`, `fear_greed`, `trend_diff`, `active_addresses_pct_change` |
+| **Exógenas candidatas** | `btc_rsi`, `interest_rate`                                                                                                                             |
+
+##### _Combinaciones evaluadas_
+
+Se probaron 13 configuraciones (ver tabla completa en la notebook), que van desde un **VAR bivariado** simple (`btc + sp500`) hasta un **VARMAX** con nueve series y dos variables exógenas.
+
+##### _Metodología_
+
+1. **Ventana temporal**: datos diarios completos disponibles.
+2. **Split 80/20**: 80% entrenamiento, 20% test.
+3. **Orden óptimo de rezagos**: seleccionado vía `select_order` (AIC / BIC).
+4. **Ajuste**: `VAR` o `VARMAX` según lleve exógenas.
+5. **Pronóstico**: horizonte igual al tramo de test.
+6. **Evaluación**:
+   * **AIC / BIC** (parsimonia)
+   * **MAE** y **RMSE** sobre precio de BTC reconstruido a partir de retornos.
+
+##### _Resultados clave_
+
+Se destacan **dos modelos**, los **dos mejores con exógenas** (menor RMSE), aunque uno mucho más simple que el otro.
+
+| Modelo                   | Tipo   | Exógenas                   | AIC         | RMSE (precio) |
+|--------------------------| ------ | -------------------------- |-------------|---------------|
+| **btc + todos salvo RSI** | VARMAX | `btc_rsi`, `interest_rate` | **−43,033** | **6,794**     |
+| **btc + trend**          | VARMAX | `btc_rsi`, `interest_rate` | 7,468       | 6,822         |
+
+> *Ambos VARMAX con exógenas baten al mejor VAR puro por un margen amplio (≈60% menos error).*
+
+##### _Gráfico comparativo_
+
+![clipboard9.png](./img/clipboard9.png)
+![clipboard1.png](./img/clipboard2.png)
+
+
+##### _Conclusión_
+
+* **La información exógena (RSI + tasas)** aporta valor palpable, reduciendo drásticamente el RMSE.
+* El **VARMAX “btc + todos salvo RSI”** ofrece el mejor compromiso entre precisión y parsimonia (AIC más bajo).
+* El **VAR bivariado “btc + trend\_diff”** sirve como *baseline* simple y rápido, aunque subestima los movimientos bruscos.
+* Siguientes pasos:
+
+  1. Explorar rezagos asimétricos (EGARCH‑X) para capturar shocks.
+  2. Probar variables cripto‑específicas de on‑chain (hashrate, fees) como exógenas adicionales.
 
 ### Prophet
 
-es una herramienta desarrollada por Facebook (Meta) para modelar y predecir series temporales de forma automática. Está diseñada para capturar:
+Es una herramienta desarrollada por Facebook (Meta) para modelar y predecir series temporales de forma automática. Está diseñada para capturar:
 
 - **Tendencias** (lineales o logísticas)
 - **Estacionalidades** (diarias, semanales, anuales)
