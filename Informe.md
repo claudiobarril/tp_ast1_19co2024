@@ -239,7 +239,6 @@ Se destacan **dos modelos**, los **dos mejores con exógenas** (menor RMSE), aun
 ![clipboard9.png](./img/clipboard9.png)
 ![clipboard1.png](./img/clipboard2.png)
 
-
 ##### _Conclusión_
 
 * **La información exógena (RSI + tasas)** aporta valor palpable, reduciendo drásticamente el RMSE.
@@ -396,11 +395,67 @@ Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
 - Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
 - Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
 
-### LSTM
+### Redes Neuronales LSTM
+
+Las **Long Short‑Term Memory (LSTM)** son un tipo de red neuronal recurrente capaz de **aprender dependencias de largo plazo** y **patrones no lineales** en series temporales financieras muy volátiles como el precio de Bitcoin.
+
+##### _Enfoque_
+
+* **Ventanas móviles de 30 días**
+  Cada muestra contiene los últimos 30 días de observaciones; la red aprende a predecir el retorno del día + 1.
+* **LSTM simple**
+  1 capa `LSTM` ⭢ 1 capa densa de salida.
+  Sirve como línea base antes de usar arquitecturas más profundas o bidireccionales.
+* **Entrenamiento supervisado**
+  Todos los conjuntos de variables se normalizaron (`StandardScaler`).
+
+##### _Conjuntos de variables evaluados_
+
+| Nombre                         | Variables incluidas                                                                                               |
+| ------------------------------ |-------------------------------------------------------------------------------------------------------------------|
+| **full**                       | `active_addresses`, `dxy_close`, `eth_close`, `fear_greed`, `gold_close`, `interest_rate`, `sp500_close`, `trend` |
+| **full\_no\_eth\_fear\_greed** | Todas las anteriores excepto `eth_close`, `fear_greed`                                                            |
+| **macro**                      | `dxy_close`, `gold_close`, `sp500_close`, `interest_rate`                                                         |
+| **on‑chain**                   | `active_addresses`, `trend`                                                                                       |
+| **crypto**                     | `eth_close`, `fear_greed`                                                                                         |
+
+##### _Resultados_
+
+| features                   | AIC          | RMSE (precio) |
+| -------------------------- |--------------|---------------|
+| **crypto**                 | **31,643.6** | 4,217         |
+| **on‑chain**               | 36,037.6     | **3,213**     |
+| macro                      | 37,605       | 5,339         |
+| full\_no\_eth\_fear\_greed | 39,240       | 9,282         |
+| full                       | 35,139       | 12,364        |
+
+> Se muestran solo **AIC** (parsimonia) y **RMSE sobre precio reconstruido**; MAE muestra el mismo orden.
+
+##### _Modelos destacados_
+
+| Ranking | Criterio principal | Modelo       | Interpretación                                                                                                                                                                       |
+| ------- | ------------------ | ------------ |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ①       | **Menor RMSE**     | **on‑chain** | Con solo dos variables de *blockchain* logra el error de predicción más bajo (≈3,200 USD), evidenciando el poder de la información *on‑chain* para capturar dinámica de corto plazo. |
+| ②       | **Menor AIC**      | **crypto**   | El set “crypto” (ETH + sentimiento `fear_greed`) obtiene la mejor parsimonia (AIC) con un RMSE competitivo (≈4,200 USD). Buena relación complejidad‑desempeño.                       |
+
+##### _Gráfico comparativo_
+
+![clipboard5.png](./img/clipboard5.png)
+![clipboard8.png](./img/clipboard8.png)
+
+##### _Conclusión_
+
+* **LSTM supera a los modelos lineales cuando la señal proviene de pocos factores relevantes** (caso *on‑chain*).
+* Incluir demasiadas series (“full”) **degrada** el rendimiento: más ruido, menos generalización.
+* Los resultados confirman que **variables del ecosistema cripto+sentimiento** concentran la mayor parte de la información predictiva a corto plazo.
+* Próximos pasos:
+
+  1. Añadir capas LSTM bidireccionales y *attention* para evaluar ganancias adicionales.
+  2. Ajustar el horizonte de ventana (15–60 días) y técnicas de *feature selection* basadas en SHAP.
 
 ### XGBoost
 
-es un modelo de aprendizaje automático basado en árboles de decisión optimizados mediante boosting. Es ampliamente utilizado por su:
+Es un modelo de aprendizaje automático basado en árboles de decisión optimizados mediante boosting. Es ampliamente utilizado por su:
 
 - Alta precisión
 - Capacidad de manejar relaciones no lineales
