@@ -169,7 +169,7 @@ Se utilizó `auto_arima` para seleccionar automáticamente los parámetros ópti
 
 ##### _Resultados_
 
-El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
+El modelo fue entrenado con el 80% de los datos y evaluado en el 20% restante.
 
 ![Gráfico](img/arima_pred_vs_real.png)
 
@@ -188,6 +188,70 @@ El modelo fue entrenado con el 70% de los datos y evaluado en el 30% restante.
 - Es útil como referencia inicial en comparación con modelos más complejos.
 
 ### GARCH
+
+### GARCH
+
+Los modelos **GARCH (Generalized Autoregressive Conditional Heteroskedasticity)** describen la **volatilidad condicional** de una serie financiera: permiten que la varianza cambie a lo largo del tiempo en función de choques pasados. Son la extensión natural de los modelos ARCH de Engle (1982) y capturan el fenómeno "clústeres de volatilidad" típico de los mercados especulativos.
+
+##### _Motivación_
+
+* Los **retornos logarítmicos de BTC** muestran picos de volatilidad intermitentes.
+* Su media se aproxima a cero, pero la varianza no es constante (heterocedástica).
+* Estimar correctamente esa varianza es crucial para *VaR*, *expected shortfall*, y precificación de derivados.
+
+##### *Especificación del modelo*
+
+$$
+\begin{aligned}
+r_t          &= \mu + \varepsilon_t, \quad \varepsilon_t = \sigma_t z_t, \quad z_t \sim \mathcal N(0,1)\\[4pt]
+\sigma_t^{2} &= \omega + \alpha_1 \varepsilon_{t-1}^{2} + \beta_1 \sigma_{t-1}^{2},
+\end{aligned}
+$$
+
+Donde en este trabajo se fijó $\mu = 0$ (*mean="Zero"*), obteniéndose un **GARCH(1, 1)**.
+
+##### _Estimación_
+
+| Parámetro  |          Estimación | 95 % CI                      | p‑valor |
+| ---------- | ------------------: |------------------------------|---------|
+| $\omega$   | $2.60\times10^{-5}$ | $[2.21,\,2.99]\times10^{-5}$ | < 0.001 |
+| $\alpha_1$ |              0.1000 | \[0.0475, 0.152]             | < 0.001 |
+| $\beta_1$  |              0.8800 | \[0.836, 0.924]              | < 0.001 |
+
+* **Log‑Likelihood** = 7774.02   **AIC** = −15,542
+* **α₁ + β₁ = 0.98** → *alta persistencia*: los choques tardan en disiparse.
+* Todos los coeficientes resultan estadísticamente significativos.
+
+##### _Diagnóstico de residuos_
+
+1. **Residuos estandarizados**: centrados en 0 y sin tendencia; se observan algunos *outliers* esperables en cripto‑activos.
+2. **Distribución**: simétrica, con **pico alto y colas largas**; una distribución *t‑Student* podría capturar mejor las colas.
+3. **Ljung–Box (residuos)**: solo el *lag 0* significativo ⇒ sin autocorrelación remanente en la media.
+4. **Ljung–Box (residuos²)**: ausencia de autocorrelación ⇒ la heterocedasticidad fue absorbida.
+
+##### _Iteraciones adicionales_
+
+* **AR(1)+GARCH(1,1)** y **AR(2)+GARCH(1,1)**: redujeron algo la autocorrelación, pero persistió.
+* **ARMA(1,1)+GARCH(1,1)**: sin mejora sustancial.
+* **Distribución t‑Student**: ajusta mejor colas, pero no corrige la autocorrelación residual.
+
+##### _Resultados_
+
+![Gráfico](img/clipboard.png)
+
+* El modelo reproduce bien los **picos de volatilidad** y su **persistencia**.
+* Sigue la dirección general de la varianza, pero **subestima colas extremas**.
+* La precisión en media continúa limitada, sugiriendo la necesidad de modelos con dinámica más rica (p.ej. EGARCH, GJR‑GARCH, o medias no lineales).
+
+##### _Predicciones_
+
+![Gráfico](img/clipboard1.png)
+
+##### _Conclusión_
+
+* **GARCH(1,1)** es un **estándar robusto** para volatilidad de BTC y establece un punto de partida claro.
+* Explica la mayor parte de la heterocedasticidad, aunque deja leves autocorrelaciones en la media.
+* Un modelo GARCH(1,1) es adecuado para capturar la volatilidad condicional de los retornos de BTC, pero no logra explicar completamente la dinámica de la media. A pesar de probar AR(1), AR(2) y ARMA(1,1), persiste la autocorrelación en los residuos. Esto sugiere que podría requerirse un modelo más complejo, no lineal o de régimen cambiante para la media, o aceptar que el modelo actual describe solo parcialmente la dinámica del proceso.
 
 ### VAR y VARMAX
 
@@ -565,8 +629,4 @@ La optimización con Optuna demostró ser particularmente efectiva para:
 
 ---
 
-## 5. Resultados
-
----
-
-## 6. Conclusiones
+## 5. Conclusiones
