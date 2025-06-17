@@ -570,3 +570,24 @@ La optimización con Optuna demostró ser particularmente efectiva para:
 ---
 
 ## 6. Conclusiones
+
+## 📊 Comparación de modelos y resultados (RMSE)
+
+| Modelo               | RMSE    | Features utilizados                                          |
+|----------------------|---------|--------------------------------------------------------------|
+| **ARIMA**            | 17,624  | btc_log_return                                               |
+| **VAR**              | 6,794   | btc + todos (excepto RSI)                                   |
+| **VARMAX**           | 6,822   | btc + trend                                                  |
+| **Prophet**          | 22,049  | btc_close                                                    |
+| **Browniano geométrico** | 14,493  | btc_close                                                    |
+| **Regresión lineal** | 8,610   | btc + btc_rsi                                                |
+|                      | 8,846   | btc + btc_rsi + active_addresses                             |
+|                      | 12,004  | btc + sp500                                                  |
+|                      | 18,150  | btc + trend_diff                                             |
+| **LSTM**             | 4,217   | eth_close + fear_greed                                       |
+|                      | 3,213   | active_addresses + trend                                     |
+|                      | 5,339   | dxy_close + gold_close + sp500_close + interest_rate         |
+|                      | 9,282   | active_addresses + dxy_close + gold_close + interest_rate + sp500_close + trend |
+|                      | 12,364  | active_addresses + dxy_close + eth_close + fear_greed + gold_close + interest_rate + sp500_close + trend |
+| **XGBoost**          | 8,506   | eth_log_return + sp500_log_return + gold_log_return + dxy_log_return |
+|                      | 13,524  | btc_close                                                    |
