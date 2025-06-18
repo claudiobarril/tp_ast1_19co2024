@@ -140,56 +140,6 @@ Como mencionamos anteriormente, estas variables no se utilizarán todas en todos
 
 ## 4. Modelos
 
-### ARIMA
-
-Es un modelo estadístico clásico para series de tiempo univariadas. Se compone de tres componentes:
-
-- **AR (AutoRegressive)**: utiliza dependencias lineales con valores pasados.
-- **I (Integrated)**: aplica diferenciación para lograr estacionariedad.
-- **MA (Moving Average)**: ajusta errores residuales de predicciones anteriores.
-
-En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diario del precio de Bitcoin (BTC)**.
-
-##### _Estacionariedad_
-
- Se verificó su estacionariedad mediante el test ADF:
-
-  ===== Test de Estacionariedad ADF =====
-  - ADF Statistic: -19.02553917226454
-  - p-value: 0.0
-  - Valores críticos:
-  Nivel 1%: -3.43
-  Nivel 5%: -2.86
-  Nivel 10%: -2.56
-
-> Podemos ver que el p-valor es cero, menor a 0.05 y por lo tanto es estacionaria. También podemos utilizar el estadístico ADF y decir que al ser mucho menor al nivel más crítico de los valores críticos la serie es estacionaria. Usaremos d=0
-
-##### _Búsqueda de parámetros_
-
-Se utilizó `auto_arima` para seleccionar automáticamente los parámetros óptimos `(p, q)` minimizando el AIC.
-
-> Modelo elegido: **ARIMA(1, 0, 0)**
-
-##### _Resultados_
-
-El modelo fue entrenado con el 80% de los datos y evaluado en el 20% restante.
-
-![Gráfico](img/arima_pred_vs_real.png)
-
-| Métrica | Valor  |
-|---------|--------|
-| **MAE** | 13.481 |
-| **RMSE**| 17.624 |
-
-- El modelo logra seguir la dirección general de los retornos.
-- Tiende a **suavizar la predicción** y subestima movimientos bruscos.
-
-##### _Conclusión_
-
-- ARIMA es simple, eficiente y adecuado como baseline.
-- No captura bien shocks abruptos ni relaciones no lineales.
-- Es útil como referencia inicial en comparación con modelos más complejos.
-
 ### GARCH
 
 Los modelos **GARCH (Generalized Autoregressive Conditional Heteroskedasticity)** describen la **volatilidad condicional** de una serie financiera: permiten que la varianza cambie a lo largo del tiempo en función de choques pasados. Son la extensión natural de los modelos ARCH de Engle (1982) y capturan el fenómeno "clústeres de volatilidad" típico de los mercados especulativos.
@@ -254,6 +204,321 @@ Donde en este trabajo se fijó $\mu = 0$ (*mean="Zero"*), obteniéndose un **GAR
 * Explica la mayor parte de la heterocedasticidad, aunque deja leves autocorrelaciones en la media.
 * Un modelo GARCH(1,1) es adecuado para capturar la volatilidad condicional de los retornos de BTC, pero no logra explicar completamente la dinámica de la media. A pesar de probar AR(1), AR(2) y ARMA(1,1), persiste la autocorrelación en los residuos. Esto sugiere que podría requerirse un modelo más complejo, no lineal o de régimen cambiante para la media, o aceptar que el modelo actual describe solo parcialmente la dinámica del proceso.
 
+### ARIMA
+
+Es un modelo estadístico clásico para series de tiempo univariadas. Se compone de tres componentes:
+
+- **AR (AutoRegressive)**: utiliza dependencias lineales con valores pasados.
+- **I (Integrated)**: aplica diferenciación para lograr estacionariedad.
+- **MA (Moving Average)**: ajusta errores residuales de predicciones anteriores.
+
+En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diario del precio de Bitcoin (BTC)**.
+
+##### _Estacionariedad_
+
+ Se verificó su estacionariedad mediante el test ADF:
+
+  ===== Test de Estacionariedad ADF =====
+  - ADF Statistic: -19.02553917226454
+  - p-value: 0.0
+  - Valores críticos:
+  Nivel 1%: -3.43
+  Nivel 5%: -2.86
+  Nivel 10%: -2.56
+
+> Podemos ver que el p-valor es cero, menor a 0.05 y por lo tanto es estacionaria. También podemos utilizar el estadístico ADF y decir que al ser mucho menor al nivel más crítico de los valores críticos la serie es estacionaria. Usaremos d=0
+
+##### _Búsqueda de parámetros_
+
+Se utilizó `auto_arima` para seleccionar automáticamente los parámetros óptimos `(p, q)` minimizando el AIC.
+
+> Modelo elegido: **ARIMA(1, 0, 0)**
+
+##### _Resultados_
+
+El modelo fue entrenado con el 80% de los datos y evaluado en el 20% restante.
+
+![Gráfico](img/arima_pred_vs_real.png)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 13.481 |
+| **RMSE**| 17.624 |
+
+- El modelo logra seguir la dirección general de los retornos.
+- Tiende a **suavizar la predicción** y subestima movimientos bruscos.
+
+##### _Conclusión_
+
+- ARIMA es simple, eficiente y adecuado como baseline.
+- No captura bien shocks abruptos ni relaciones no lineales.
+- Es útil como referencia inicial en comparación con modelos más complejos.
+
+### Prophet
+
+Es una herramienta desarrollada por Facebook (Meta) para modelar y predecir series temporales de forma automática. Está diseñada para capturar:
+
+- **Tendencias** (lineales o logísticas)
+- **Estacionalidades** (diarias, semanales, anuales)
+- **Cambios estructurales** mediante puntos de cambio (“changepoints”)
+
+Su enfoque aditivo permite descomponer la serie como:
+
+y(t) = g(t) + s(t) + h(t) + epsilon_t
+
+Donde:
+
+- g(t): tendencia
+- s(t): estacionalidad
+- h(t): efectos externos (como feriados)
+- epsilon_t: error
+
+#### _Implementación `btc_log_return`_
+
+- Prophet tiende a suavizar en exceso la serie de retornos.
+- No captura bien la alta volatilidad diaria del BTC.
+- Genera una curva de predicción oscilante que no sigue los picos abruptos del retorno real.
+
+![Gráfico](img/prophet_log_return.png)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 0.0177 |
+| **RMSE**| 0.0251 |
+
+> Aunque los valores son similares a ARIMA, el comportamiento visual muestra **underfitting**: el modelo no logra adaptarse a los movimientos rápidos.
+
+#### _Implementación `btc_close`_
+
+Inicialmente, Prophet mostró un mal ajuste sobre el precio debido a su suposición de tendencias suaves.
+
+Se mejoró la performance aumentando el número de puntos de cambio:
+
+Prophet(n_changepoints=100, changepoint_range=1.0)
+
+![Gráfico](img/prophet_close.png)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 16.792 |
+| **RMSE**| 22.049 |
+
+> Aún con mejor rendimiento que al inicio, el modelo tiende a subestimar crecimientos exponenciales y no modela bien eventos no recurrentes.
+
+##### _Conclusión_
+
+- Prophet es muy útil para series con tendencias suaves y estacionalidad clara.
+- No es ideal para series con alta volatilidad y sin estructura periódica clara como los retornos de BTC.
+- Su capacidad de detección de cambios puede aprovecharse con configuraciones ajustadas.
+
+### XGBoost
+
+Es un modelo de aprendizaje automático basado en árboles de decisión optimizados mediante boosting. Es ampliamente utilizado por su:
+
+- Alta precisión
+- Capacidad de manejar relaciones no lineales
+- Robustez ante outliers y ruido
+- Soporte para múltiples features
+
+#### _Implementación con features_
+
+Se utilizó XGBoost para predecir el **retorno logarítmico diario del BTC (`btc_log_return`)**. Para ello, se construyó un conjunto de features que incluye:
+
+- **Lags** del retorno: `lag_1`, `lag_2`, `lag_3`
+- **Regresores externos**:
+  - `eth_log_return` (Ethereum)
+  - `sp500_log_return` (S&P 500)
+  - `gold_log_return` (Oro)
+  - `dxy_log_return` (Índice del dólar)
+
+![Gráfico](img/xgboost_no_optimization_features.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | 7.137 |
+| **RMSE**| 9.486 |
+
+#### _Implementación con features optimizado_
+
+Gracias a Optuna buscamos los parámetros que minimiza RMSE 
+
+![Gráfico](img/xgboost_optimization_features.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | 6.558 |
+| **RMSE**| 8.506 |
+
+#### _Implementación sin features optimizado_
+
+Gracias a Optuna buscamos los parámetros que minimiza RMSE y no utilizamos features distintos al target (y sus lags)
+
+![Gráfico](img/xgboost_optimization.png)
+
+| Métrica | Valor  |
+|---------|--------|
+| **MAE** | 9.943  |
+| **RMSE**| 13.524 |
+
+#### _Conclusiones_
+
+El análisis de importancia de features mostró que los lags del propio retorno de BTC y el eth_log_return fueron los más influyentes, seguidos por sp500_log_return.
+
+XGBoost
+- Es capaz de modelar relaciones complejas y no lineales.
+- Requiere más ingeniería de features, pero permite mayor control y personalización.
+- Es ideal cuando se cuenta con regresores múltiples y objetivos ruidosos como los retornos de BTC.
+
+### Regresión lineal
+
+Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir precios de BTC incorporando información de otros activos e indicadores.
+
+##### _Implementación_
+
+Se utilizó regresión lineal múltiple para predecir `btc_close` incorporando variables exógenas, posteriormente reconstruyendo precios:
+
+**Modelo**: btc_close = β₀ + β₁×RSI + ε
+
+El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
+
+![Gráfico](img/lr_optimization.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $7,220 |
+| **RMSE**| $8,610 |
+
+##### _Resultados comparativos_
+
+Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
+
+1. **btc + btc_rsi**: $8,610
+2. **btc + btc_rsi + active_addresses**: $8,846  
+3. **btc + sp500**: $12,004
+4. **btc + trend_diff**: $18,150
+
+##### _Conclusión_
+
+- Regresión lineal permite incorporar información exógena de forma directa e interpretable.
+- El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
+- **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
+- Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
+- Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
+
+### Movimiento browniano geométrico
+
+Es un modelo estocástico ampliamente utilizado en finanzas para modelar la evolución de **precios de activos**. Se basa en la ecuación diferencial estocástica:
+
+$$
+dS_t = \mu\,S_t\,dt \;+\; \sigma\,S_t\,dW_t
+$$
+
+- **S(t)**: valor del proceso en el tiempo \(t\).  
+- **μ**: tasa de crecimiento (drift).  
+- **σ**: volatilidad del proceso.  
+- **W(t)**: movimiento browniano estándar.  
+
+##### _Implementación básica_
+
+Se implementó la versión clásica que estima parámetros directamente de retornos históricos para predecir el **precio futuro de BTC**:
+
+- **Deriva**: μ = 0.002043
+- **Volatilidad**: σ = 0.038323
+- **Predicción**: precio reconstruido usando retornos simulados con deriva constante
+
+![Gráfico](img/gbm_base.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $10,731 |
+| **RMSE**| $14,493 |
+
+##### _Optimización con Optuna_
+
+Para mejorar el rendimiento del modelo GBM, se implementó optimización automática de hiperparámetros usando **Optuna**. Los parámetros optimizados incluyen:
+
+- **`drift_adjustment`**: Factor de ajuste para la deriva (rango: 0.0 a 1.0)
+
+**Fórmula optimizada:**
+- **μ = mean_return + drift_adjustment × variance**
+- **σ = std_deviation**
+
+
+**Ejemplo de parámetros optimizados:**
+- Ajuste de deriva: 0.324
+- μ optimizado: 0.001785
+- σ optimizado: 0.038323
+
+![Gráfico](img/gbm_optimization.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $7,645.32 |
+| **RMSE**| $9,415 |
+
+**Mejoras observadas:**
+- Reducción del RMSE en aproximadamente 8-15% respecto al modelo básico
+- Mayor adaptabilidad a diferentes regímenes de volatilidad
+
+### Optimización de hiperparámetros con Optuna
+
+Para mejorar el rendimiento de los modelos base, se implementó optimización automática de hiperparámetros usando **Optuna**, una biblioteca de optimización bayesiana que utiliza algoritmos avanzados como TPE (Tree-structured Parzen Estimator).
+
+#### _Metodología de optimización_
+
+**Proceso de búsqueda:**
+1. **Definición del espacio de búsqueda**: Se establecen rangos de parámetros relevantes para cada modelo
+2. **Función objetivo**: Se minimiza el RMSE en escala de precio mediante validación cruzada
+3. **Algoritmo TPE**: Optuna utiliza información de trials anteriores para sugerir combinaciones prometedoras
+4. **Evaluación iterativa**: Se ejecutan 30 trials por defecto, balanceando precisión y tiempo computacional
+
+**Ventajas del enfoque:**
+- **Búsqueda inteligente**: TPE es más eficiente que grid search o random search
+- **Adaptabilidad**: Se ajusta automáticamente a la superficie de la función objetivo
+- **Robustez**: Maneja espacios de búsqueda mixtos (enteros, flotantes, categóricos)
+- **Escalabilidad**: Permite paralelización y estudios distribuidos
+
+#### _Modelos optimizados_
+
+##### **Geometric Brownian Motion (GBM)**
+- **Parámetros optimizados:**
+  - `drift_adjustment`: Factor de ajuste de deriva (0.0 a 1.0)
+
+- **Mejoras típicas:** 8-15% reducción en RMSE
+- **Beneficio principal:** Mejor calibración temporal de parámetros financieros
+
+##### **XGBoost**
+- **Parámetros optimizados:**
+  - `n_estimators`: Número de árboles (50 a 300)
+  - `max_depth`: Profundidad máxima (2 a 10)
+  - `learning_rate`: Tasa de aprendizaje (0.01 a 0.3)
+  - `subsample`: Fracción de muestras (0.6 a 1.0)
+  - `colsample_bytree`: Fracción de features (0.6 a 1.0)
+  - `gamma`: Regularización de complejidad (0 a 5)
+
+- **Mejoras típicas:** 10-20% reducción en RMSE
+- **Beneficio principal:** Mejor generalización y reducción de overfitting
+
+#### _Impacto en resultados_
+
+La optimización con Optuna demostró ser particularmente efectiva para:
+- **Modelos paramétricos** como GBM, donde la calibración precisa es crucial
+- **Modelos complejos** como XGBoost, donde el espacio de hiperparámetros es amplio
+- **Reducción de overfitting** mediante regularización optimizada automáticamente
+
+**Limitaciones observadas:**
+- El tiempo de entrenamiento aumenta proporcionalmente al número de trials
+- Algunos modelos simples (ARIMA, regresión lineal) muestran mejoras marginales
+- La calidad de la optimización depende de la representatividad del conjunto de validación
+
+##### _Conclusión_
+
+- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros. 
+- Tiene un sesgo alcista menor al modelo base (0.20% vs 0.18% diario). 
+- El nivel de riesgo permanece igual (σ de 3.8%)
+- Aún así, genera predicciones relativamente suaves para un activo tan volátil como Bitcoin.
+- Útil como baseline teórico mejorado, especialmente cuando se combina con optimización automática de hiperparámetros.
+
 ### VAR y VARMAX
 
 Son modelos estadísticos **multivariados** para series de tiempo que permiten capturar la interacción entre varias variables financieras.
@@ -314,163 +579,6 @@ Se destacan **dos modelos**, los **dos mejores con exógenas** (menor RMSE), aun
   1. Explorar rezagos asimétricos (EGARCH‑X) para capturar shocks.
   2. Probar variables cripto‑específicas de on‑chain (hashrate, fees) como exógenas adicionales.
 
-### Prophet
-
-Es una herramienta desarrollada por Facebook (Meta) para modelar y predecir series temporales de forma automática. Está diseñada para capturar:
-
-- **Tendencias** (lineales o logísticas)
-- **Estacionalidades** (diarias, semanales, anuales)
-- **Cambios estructurales** mediante puntos de cambio (“changepoints”)
-
-Su enfoque aditivo permite descomponer la serie como:
-
-y(t) = g(t) + s(t) + h(t) + epsilon_t
-
-Donde:
-
-- g(t): tendencia
-- s(t): estacionalidad
-- h(t): efectos externos (como feriados)
-- epsilon_t: error
-
-#### _Implementación `btc_log_return`_
-
-- Prophet tiende a suavizar en exceso la serie de retornos.
-- No captura bien la alta volatilidad diaria del BTC.
-- Genera una curva de predicción oscilante que no sigue los picos abruptos del retorno real.
-
-![Gráfico](img/prophet_log_return.png)
-
-| Métrica | Valor  |
-|---------|--------|
-| **MAE** | 0.0177 |
-| **RMSE**| 0.0251 |
-
-> Aunque los valores son similares a ARIMA, el comportamiento visual muestra **underfitting**: el modelo no logra adaptarse a los movimientos rápidos.
-
-#### _Implementación `btc_close`_
-
-Inicialmente, Prophet mostró un mal ajuste sobre el precio debido a su suposición de tendencias suaves.
-
-Se mejoró la performance aumentando el número de puntos de cambio:
-
-Prophet(n_changepoints=100, changepoint_range=1.0)
-
-![Gráfico](img/prophet_close.png)
-
-| Métrica | Valor  |
-|---------|--------|
-| **MAE** | 16.792 |
-| **RMSE**| 22.049 |
-
-> Aún con mejor rendimiento que al inicio, el modelo tiende a subestimar crecimientos exponenciales y no modela bien eventos no recurrentes.
-
-##### _Conclusión_
-
-- Prophet es muy útil para series con tendencias suaves y estacionalidad clara.
-- No es ideal para series con alta volatilidad y sin estructura periódica clara como los retornos de BTC.
-- Su capacidad de detección de cambios puede aprovecharse con configuraciones ajustadas.
-
-### Movimiento browniano geométrico
-
-Es un modelo estocástico ampliamente utilizado en finanzas para modelar la evolución de **precios de activos**. Se basa en la ecuación diferencial estocástica:
-
-$$
-dS_t = \mu\,S_t\,dt \;+\; \sigma\,S_t\,dW_t
-$$
-
-- **S(t)**: valor del proceso en el tiempo \(t\).  
-- **μ**: tasa de crecimiento (drift).  
-- **σ**: volatilidad del proceso.  
-- **W(t)**: movimiento browniano estándar.  
-
-##### _Implementación básica_
-
-Se implementó la versión clásica que estima parámetros directamente de retornos históricos para predecir el **precio futuro de BTC**:
-
-- **Deriva**: μ = 0.002043
-- **Volatilidad**: σ = 0.038323
-- **Predicción**: precio reconstruido usando retornos simulados con deriva constante
-
-![Gráfico](img/gbm_base.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | $10,731 |
-| **RMSE**| $14,493 |
-
-##### _Optimización con Optuna_
-
-Para mejorar el rendimiento del modelo GBM, se implementó optimización automática de hiperparámetros usando **Optuna**. Los parámetros optimizados incluyen:
-
-- **`drift_adjustment`**: Factor de ajuste para la deriva (rango: 0.0 a 1.0)
-
-**Fórmula optimizada:**
-- **μ = mean_return + drift_adjustment × variance**
-- **σ = std_deviation**
-
-
-**Ejemplo de parámetros optimizados:**
-- Ajuste de deriva: 0.324
-- μ optimizado: 0.001785
-- σ optimizado: 0.038323
-
-![Gráfico](img/gbm_optimization.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | $7,645.32 |
-| **RMSE**| $9,415 |
-
-**Mejoras observadas:**
-- Reducción del RMSE en aproximadamente 8-15% respecto al modelo básico
-- Mayor adaptabilidad a diferentes regímenes de volatilidad
-
-
-##### _Conclusión_
-
-- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros. 
-- Tiene un sesgo alcista menor al modelo base (0.20% vs 0.18% diario). 
-- El nivel de riesgo permanece igual (σ de 3.8%)
-- Aún así, genera predicciones relativamente suaves para un activo tan volátil como Bitcoin.
-- Útil como baseline teórico mejorado, especialmente cuando se combina con optimización automática de hiperparámetros.
-
-### Regresión lineal
-
-Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir precios de BTC incorporando información de otros activos e indicadores.
-
-##### _Implementación_
-
-Se utilizó regresión lineal múltiple para predecir `btc_close` incorporando variables exógenas, posteriormente reconstruyendo precios:
-
-**Modelo**: btc_close = β₀ + β₁×RSI + ε
-
-El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
-
-![Gráfico](img/lr_optimization.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | $7,220 |
-| **RMSE**| $8,610 |
-
-##### _Resultados comparativos_
-
-Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
-
-1. **btc + btc_rsi**: $8,610
-2. **btc + btc_rsi + active_addresses**: $8,846  
-3. **btc + sp500**: $12,004
-4. **btc + trend_diff**: $18,150
-
-##### _Conclusión_
-
-- Regresión lineal permite incorporar información exógena de forma directa e interpretable.
-- El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
-- **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
-- Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
-- Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
-
 ### Redes Neuronales LSTM
 
 Las **Long Short‑Term Memory (LSTM)** son un tipo de red neuronal recurrente capaz de **aprender dependencias de largo plazo** y **patrones no lineales** en series temporales financieras muy volátiles como el precio de Bitcoin.
@@ -528,116 +636,6 @@ Las **Long Short‑Term Memory (LSTM)** son un tipo de red neuronal recurrente c
 
   1. Añadir capas LSTM bidireccionales y *attention* para evaluar ganancias adicionales.
   2. Ajustar el horizonte de ventana (15–60 días) y técnicas de *feature selection* basadas en SHAP.
-
-### XGBoost
-
-Es un modelo de aprendizaje automático basado en árboles de decisión optimizados mediante boosting. Es ampliamente utilizado por su:
-
-- Alta precisión
-- Capacidad de manejar relaciones no lineales
-- Robustez ante outliers y ruido
-- Soporte para múltiples features
-
-#### _Implementación con features_
-
-Se utilizó XGBoost para predecir el **retorno logarítmico diario del BTC (`btc_log_return`)**. Para ello, se construyó un conjunto de features que incluye:
-
-- **Lags** del retorno: `lag_1`, `lag_2`, `lag_3`
-- **Regresores externos**:
-  - `eth_log_return` (Ethereum)
-  - `sp500_log_return` (S&P 500)
-  - `gold_log_return` (Oro)
-  - `dxy_log_return` (Índice del dólar)
-
-![Gráfico](img/xgboost_no_optimization_features.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | 7.137 |
-| **RMSE**| 9.486 |
-
-#### _Implementación con features optimizado_
-
-Gracias a Optuna buscamos los parámetros que minimiza RMSE 
-
-![Gráfico](img/xgboost_optimization_features.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | 6.558 |
-| **RMSE**| 8.506 |
-
-
-#### _Implementación sin features optimizado_
-
-Gracias a Optuna buscamos los parámetros que minimiza RMSE y no utilizamos features distintos al target (y sus lags)
-
-![Gráfico](img/xgboost_optimization.png)
-
-| Métrica | Valor  |
-|---------|--------|
-| **MAE** | 9.943  |
-| **RMSE**| 13.524 |
-
-#### _Conclusiones_
-
-El análisis de importancia de features mostró que los lags del propio retorno de BTC y el eth_log_return fueron los más influyentes, seguidos por sp500_log_return.
-
-XGBoost
-- Es capaz de modelar relaciones complejas y no lineales.
-- Requiere más ingeniería de features, pero permite mayor control y personalización.
-- Es ideal cuando se cuenta con regresores múltiples y objetivos ruidosos como los retornos de BTC.
-
-### Optimización de hiperparámetros con Optuna
-
-Para mejorar el rendimiento de los modelos base, se implementó optimización automática de hiperparámetros usando **Optuna**, una biblioteca de optimización bayesiana que utiliza algoritmos avanzados como TPE (Tree-structured Parzen Estimator).
-
-#### _Metodología de optimización_
-
-**Proceso de búsqueda:**
-1. **Definición del espacio de búsqueda**: Se establecen rangos de parámetros relevantes para cada modelo
-2. **Función objetivo**: Se minimiza el RMSE en escala de precio mediante validación cruzada
-3. **Algoritmo TPE**: Optuna utiliza información de trials anteriores para sugerir combinaciones prometedoras
-4. **Evaluación iterativa**: Se ejecutan 30 trials por defecto, balanceando precisión y tiempo computacional
-
-**Ventajas del enfoque:**
-- **Búsqueda inteligente**: TPE es más eficiente que grid search o random search
-- **Adaptabilidad**: Se ajusta automáticamente a la superficie de la función objetivo
-- **Robustez**: Maneja espacios de búsqueda mixtos (enteros, flotantes, categóricos)
-- **Escalabilidad**: Permite paralelización y estudios distribuidos
-
-#### _Modelos optimizados_
-
-##### **Geometric Brownian Motion (GBM)**
-- **Parámetros optimizados:**
-  - `drift_adjustment`: Factor de ajuste de deriva (0.0 a 1.0)
-
-- **Mejoras típicas:** 8-15% reducción en RMSE
-- **Beneficio principal:** Mejor calibración temporal de parámetros financieros
-
-##### **XGBoost**
-- **Parámetros optimizados:**
-  - `n_estimators`: Número de árboles (50 a 300)
-  - `max_depth`: Profundidad máxima (2 a 10)
-  - `learning_rate`: Tasa de aprendizaje (0.01 a 0.3)
-  - `subsample`: Fracción de muestras (0.6 a 1.0)
-  - `colsample_bytree`: Fracción de features (0.6 a 1.0)
-  - `gamma`: Regularización de complejidad (0 a 5)
-
-- **Mejoras típicas:** 10-20% reducción en RMSE
-- **Beneficio principal:** Mejor generalización y reducción de overfitting
-
-#### _Impacto en resultados_
-
-La optimización con Optuna demostró ser particularmente efectiva para:
-- **Modelos paramétricos** como GBM, donde la calibración precisa es crucial
-- **Modelos complejos** como XGBoost, donde el espacio de hiperparámetros es amplio
-- **Reducción de overfitting** mediante regularización optimizada automáticamente
-
-**Limitaciones observadas:**
-- El tiempo de entrenamiento aumenta proporcionalmente al número de trials
-- Algunos modelos simples (ARIMA, regresión lineal) muestran mejoras marginales
-- La calidad de la optimización depende de la representatividad del conjunto de validación
 
 ---
 
