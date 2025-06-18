@@ -369,41 +369,6 @@ XGBoost
 - Requiere más ingeniería de features, pero permite mayor control y personalización.
 - Es ideal cuando se cuenta con regresores múltiples y objetivos ruidosos como los retornos de BTC.
 
-### Regresión lineal
-
-Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir precios de BTC incorporando información de otros activos e indicadores.
-
-##### _Implementación_
-
-Se utilizó regresión lineal múltiple para predecir `btc_close` incorporando variables exógenas, posteriormente reconstruyendo precios:
-
-**Modelo**: btc_close = β₀ + β₁×RSI + ε
-
-El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
-
-![Gráfico](img/lr_optimization.png)
-
-| Métrica | Valor |
-|---------|-------|
-| **MAE** | $7,220 |
-| **RMSE**| $8,610 |
-
-##### _Resultados comparativos_
-
-Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
-
-1. **btc + btc_rsi**: $8,610
-2. **btc + btc_rsi + active_addresses**: $8,846  
-3. **btc + sp500**: $12,004
-4. **btc + trend_diff**: $18,150
-
-##### _Conclusión_
-
-- Regresión lineal permite incorporar información exógena de forma directa e interpretable.
-- El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
-- **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
-- Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
-- Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
 
 ### Movimiento browniano geométrico
 
@@ -460,64 +425,42 @@ Para mejorar el rendimiento del modelo GBM, se implementó optimización automá
 - Reducción del RMSE en aproximadamente 8-15% respecto al modelo básico
 - Mayor adaptabilidad a diferentes regímenes de volatilidad
 
-### Optimización de hiperparámetros con Optuna
+### Regresión lineal
 
-Para mejorar el rendimiento de los modelos base, se implementó optimización automática de hiperparámetros usando **Optuna**, una biblioteca de optimización bayesiana que utiliza algoritmos avanzados como TPE (Tree-structured Parzen Estimator).
+Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir precios de BTC incorporando información de otros activos e indicadores.
 
-#### _Metodología de optimización_
+##### _Implementación_
 
-**Proceso de búsqueda:**
-1. **Definición del espacio de búsqueda**: Se establecen rangos de parámetros relevantes para cada modelo
-2. **Función objetivo**: Se minimiza el RMSE en escala de precio mediante validación cruzada
-3. **Algoritmo TPE**: Optuna utiliza información de trials anteriores para sugerir combinaciones prometedoras
-4. **Evaluación iterativa**: Se ejecutan 30 trials por defecto, balanceando precisión y tiempo computacional
+Se utilizó regresión lineal múltiple para predecir `btc_close` incorporando variables exógenas, posteriormente reconstruyendo precios:
 
-**Ventajas del enfoque:**
-- **Búsqueda inteligente**: TPE es más eficiente que grid search o random search
-- **Adaptabilidad**: Se ajusta automáticamente a la superficie de la función objetivo
-- **Robustez**: Maneja espacios de búsqueda mixtos (enteros, flotantes, categóricos)
-- **Escalabilidad**: Permite paralelización y estudios distribuidos
+**Modelo**: btc_close = β₀ + β₁×RSI + ε
 
-#### _Modelos optimizados_
+El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
 
-##### **Geometric Brownian Motion (GBM)**
-- **Parámetros optimizados:**
-  - `drift_adjustment`: Factor de ajuste de deriva (0.0 a 1.0)
+![Gráfico](img/lr_optimization.png)
 
-- **Mejoras típicas:** 8-15% reducción en RMSE
-- **Beneficio principal:** Mejor calibración temporal de parámetros financieros
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $7,220 |
+| **RMSE**| $8,610 |
 
-##### **XGBoost**
-- **Parámetros optimizados:**
-  - `n_estimators`: Número de árboles (50 a 300)
-  - `max_depth`: Profundidad máxima (2 a 10)
-  - `learning_rate`: Tasa de aprendizaje (0.01 a 0.3)
-  - `subsample`: Fracción de muestras (0.6 a 1.0)
-  - `colsample_bytree`: Fracción de features (0.6 a 1.0)
-  - `gamma`: Regularización de complejidad (0 a 5)
+##### _Resultados comparativos_
 
-- **Mejoras típicas:** 10-20% reducción en RMSE
-- **Beneficio principal:** Mejor generalización y reducción de overfitting
+Se evaluaron 7 configuraciones multivariadas. Ranking por RMSE de precios:
 
-#### _Impacto en resultados_
-
-La optimización con Optuna demostró ser particularmente efectiva para:
-- **Modelos paramétricos** como GBM, donde la calibración precisa es crucial
-- **Modelos complejos** como XGBoost, donde el espacio de hiperparámetros es amplio
-- **Reducción de overfitting** mediante regularización optimizada automáticamente
-
-**Limitaciones observadas:**
-- El tiempo de entrenamiento aumenta proporcionalmente al número de trials
-- Algunos modelos simples (ARIMA, regresión lineal) muestran mejoras marginales
-- La calidad de la optimización depende de la representatividad del conjunto de validación
+1. **btc + btc_rsi**: $8,610
+2. **btc + btc_rsi + active_addresses**: $8,846  
+3. **btc + sp500**: $12,004
+4. **btc + trend_diff**: $18,150
 
 ##### _Conclusión_
 
-- **La optimización con Optuna mejora significativamente el ajuste** al permitir calibración automática de parámetros. 
-- Tiene un sesgo alcista menor al modelo base (0.20% vs 0.18% diario). 
-- El nivel de riesgo permanece igual (σ de 3.8%)
-- Aún así, genera predicciones relativamente suaves para un activo tan volátil como Bitcoin.
-- Útil como baseline teórico mejorado, especialmente cuando se combina con optimización automática de hiperparámetros.
+- Regresión lineal permite incorporar información exógena de forma directa e interpretable.
+- El **RSI** es el mejor predictor individual, reduciendo error a ~$8,600 vs $14,500 del GBM puro.
+- **Direcciones activas** mejoran predicciones cuando se combinan con RSI.
+- Modelo simple pero efectivo para capturar relaciones lineales en el ecosistema financiero.
+- Limitado para capturar dinámicas no lineales y cambios de régimen en BTC.
+
 
 ### VAR y VARMAX
 
