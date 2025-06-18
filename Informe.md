@@ -13,6 +13,9 @@ Los objetivos principales del análisis incluyen:
 - **Detección de cambios de tendencia**:  
   Más allá del valor puntual, se evalúa la posibilidad de anticipar giros importantes en la dirección del precio (de alcista a bajista o viceversa), lo que tiene un valor estratégico para la toma de decisiones.
 
+- **Volatilidad del activo**:  
+  Se estudia la volatilidad de BTC en el tiempo, que es significativamente mayor que la de activos tradicionales, para entender su comportamiento y riesgos asociados.
+
 Estos enfoques se comparan entre sí en términos de precisión de pronóstico, significancia estadística y robustez temporal.
 
 ---
