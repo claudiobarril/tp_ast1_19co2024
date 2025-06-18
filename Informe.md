@@ -40,8 +40,8 @@ Es importante reconocer que el comportamiento del precio de BTC está influido p
 - **Problemáticas de utilizar otras variables dependientes del tiempo**:
   Durante el desarrollo del trabajo, utilizaremos algunos modelos multivariados, que nos permitirán entrenar y predecir (para comparar con datos históricos) utilizando los datos históricos de otras variables como input.\
   Si se quisiese utilizar dichos modelos para predecir de aquí al futuro, se depende de variables cuyos valores en el futuro tampoco se conocen.\
-  A este punto, hay al menos 2 opciones:
-  - Crear modelos auxiliares para predecir las otras variables involucradas, y luego usar sus predicciones como input para tu modelo final, entendiendo el problema de acumular incertidumbre.
+  Con respecto a este punto, hay al menos 2 opciones:
+  - Crear modelos auxiliares para predecir las otras variables involucradas, y luego usar sus predicciones como input para el modelo final, entendiendo el problema de acumular incertidumbre.
   - Asumir que ciertas variables se mantienen igual (si no son variables de mucha volatilidad) y limitar el uso del modelo a predecir ventanas de tiempo muy acotadas en el futuro (1-7 días)
 
 Dicho esto, se planteará la separación de modelos univariados y multivariados.
