@@ -372,9 +372,14 @@ Prophet(n_changepoints=100, changepoint_range=1.0)
 
 Es un modelo estocástico ampliamente utilizado en finanzas para modelar la evolución de **precios de activos**. Se basa en la ecuación diferencial estocástica:
 
-**dS(t) = μS(t)dt + σS(t)dW(t)**
+$$
+dS_t = \mu\,S_t\,dt \;+\; \sigma\,S_t\,dW_t
+$$
 
-Donde S(t) es el precio, μ es la deriva, σ la volatilidad y dW(t) el ruido browniano.
+- **S(t)**: valor del proceso en el tiempo \(t\).  
+- **μ**: tasa de crecimiento (drift).  
+- **σ**: volatilidad del proceso.  
+- **W(t)**: movimiento browniano estándar.  
 
 ##### _Implementación básica_
 
@@ -407,11 +412,17 @@ Para mejorar el rendimiento del modelo GBM, se implementó optimización automá
 - μ optimizado: 0.001785
 - σ optimizado: 0.038323
 
+![Gráfico](img/gbm_optimization.png)
+
+| Métrica | Valor |
+|---------|-------|
+| **MAE** | $7,645.32 |
+| **RMSE**| $9,415 |
+
 **Mejoras observadas:**
 - Reducción del RMSE en aproximadamente 8-15% respecto al modelo básico
 - Mayor adaptabilidad a diferentes regímenes de volatilidad
 
-![Gráfico](img/gbm_optimization.png)
 
 ##### _Conclusión_
 
@@ -423,13 +434,13 @@ Para mejorar el rendimiento del modelo GBM, se implementó optimización automá
 
 ### Regresión lineal
 
-Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir retornos de BTC incorporando información de otros activos e indicadores.
+Es un modelo estadístico que establece relaciones lineales entre una variable dependiente y múltiples variables independientes. Se utiliza para predecir precios de BTC incorporando información de otros activos e indicadores.
 
 ##### _Implementación_
 
-Se utilizó regresión lineal múltiple para predecir `btc_log_return` incorporando variables exógenas, posteriormente reconstruyendo precios:
+Se utilizó regresión lineal múltiple para predecir `btc_close` incorporando variables exógenas, posteriormente reconstruyendo precios:
 
-**Modelo**: btc_log_return = β₀ + β₁×RSI + ε
+**Modelo**: btc_close = β₀ + β₁×RSI + ε
 
 El mejor modelo fue **btc + btc_rsi** con coeficiente 0.00057:
 
