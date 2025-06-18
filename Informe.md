@@ -152,7 +152,7 @@ En este trabajo, se utilizó ARIMA para predecir el **retorno logarítmico diari
 
 ##### _Estacionariedad_
 
- Se verificó su mediante el test ADF:
+ Se verificó su estacionariedad mediante el test ADF:
 
   ===== Test de Estacionariedad ADF =====
   - ADF Statistic: -19.02553917226454
